@@ -1,0 +1,73 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "psplice"
+version = "0.1.0"
+description = "GPU-native CLI for runtime transformer surgery"
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "MIT" }
+authors = [{ name = "Prateek Joshi" }]
+keywords = ["llm", "transformer", "gpu", "inference", "activation-steering", "head-masking", "lora"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Environment :: Console",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+
+dependencies = [
+    "typer>=0.12.0",
+    "rich>=13.7.0",
+    "transformers>=4.40.0",
+    # macOS x86_64: torch dropped wheels after 2.2.x. Pin to the last working release.
+    # All other platforms can use any 2.2+ release.
+    "torch>=2.2.0,<2.3.0; sys_platform == 'darwin' and platform_machine == 'x86_64'",
+    "torch>=2.2.0; sys_platform != 'darwin' or platform_machine != 'x86_64'",
+    "peft>=0.10.0",
+    "safetensors>=0.4.0",
+    "pydantic>=2.5.0",
+    "fastapi>=0.110.0",
+    "uvicorn[standard]>=0.29.0",
+    "httpx>=0.27.0",
+    "psutil>=5.9.0",
+    "platformdirs>=4.1.0",
+    "accelerate>=0.28.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0.0",
+    "pytest-asyncio>=0.23.0",
+    "pytest-mock>=3.12.0",
+    "pytest-cov>=4.1.0",
+]
+
+[project.scripts]
+psplice = "psplice.cli:app"
+
+[tool.hatch.build.targets.wheel]
+packages = ["psplice"]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
+
+[tool.uv.sources]
+torch = [
+    { index = "pytorch-cu124", marker = "sys_platform == 'linux'" },
+]
+
+[[tool.uv.index]]
+name = "pytorch-cu124"
+url = "https://download.pytorch.org/whl/cu124"
+explicit = true
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
